@@ -1,0 +1,21 @@
+#app{
+	width: 900px;
+	height: 900px;
+	background-color: #c0ceff;
+	margin: 0 auto;
+	position: relative;
+}
+.fish{
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	background-color: #333;
+	cursor: pointer;
+	position: absolute;
+}
+#score{
+	float: right;
+	width: 300px;
+	background-color: red;
+	color: #ffffff;
+}
