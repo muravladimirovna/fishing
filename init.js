@@ -62,8 +62,14 @@ function Fish(game, size){
 	this.step = this.sizeinvers*2 + 2;
 	this.el = $("<div>").addClass("fish fish-"+this.size);
 	this.position = {left:0,top:0};
-	this.randomCords();
-	this.el.css(this.position);
+	this.el.hide();
+	setTimeout(()=>{
+
+		this.randomCords();
+		this.el.css(this.position);
+		this.el.show();
+
+	}, 70);
 
 	this.direction = 1;
 
@@ -75,6 +81,10 @@ function Fish(game, size){
 		this.removeFish();
 		//setTimeout(()=>{this.game.addFish()}, 500);
 	});
+
+	setTimeout(()=>{
+		this.removeFish();
+	},2000)
 
 	this.timeout = setInterval(()=>{
 		
