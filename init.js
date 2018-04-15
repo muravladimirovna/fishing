@@ -6,30 +6,30 @@ function Game(el){
 	this.fishes.all = [];
 	this.fishes.count = 0;
 
-	this.time = 180000;
+	this.time = 15000;
 
-	this.speed = 15;
+	this.speed = 25;
+
+	this.timer = 0;
 
 	this.el.append($("<div>").attr("id","panel"));
 	this.el.append($("<input>").attr({"type":"hidden","id":"time"}).val(parseInt(this.time)));
 
 	$("#panel").append($("<div>").attr("id","control"));
 
-	$("#control").append($("<div>").attr("id","timer").text("3:00"));
+	$("#control").append($("<div>").attr("id","timer").text("0:15"));
 
 	$("#panel").append($("<div>").attr("id","score"));
 	
 	this.renderScore();
-
-	this.timer = setInterval(()=>{
-		this.renderTimer();
-	}, 1000);
 	
 }
 Game.prototype.addFish = function(){
-	var fish = new Fish(this, parseInt(Math.random()*4) );
-	this.el.append(fish);
-	this.fishes.count++;
+	if(this.time > 0 && this.fishes.count <=10){
+		var fish = new Fish(this, parseInt(Math.random()*4) );
+		this.el.append(fish);
+		this.fishes.count++;
+	}
 }
 Game.prototype.addScore = function(count){
 	this.score += count;
@@ -62,54 +62,57 @@ function Fish(game, size){
 	this.step = this.sizeinvers*2 + 2;
 	this.el = $("<div>").addClass("fish fish-"+this.size);
 	this.position = {left:0,top:0};
+	this.transform = {transform:'scale(1, 1)'};
 	this.el.hide();
-	setTimeout(()=>{
 
+	setTimeout(()=>{
 		this.randomCords();
 		this.el.css(this.position);
 		this.el.show();
-
 	}, 70);
 
 	this.direction = 1;
 
 	this.el.bind("click",()=>{
 		this.game.addScore(10*this.sizeinvers);
-		// this.el.remove();
-		// this.game.fishes.count--;
-		// clearInterval(this.timeout);
 		this.removeFish();
-		//setTimeout(()=>{this.game.addFish()}, 500);
 	});
 
 	setTimeout(()=>{
 		this.removeFish();
-	},2000)
+	},25000)
 
 	this.timeout = setInterval(()=>{
 		
-		if(this.position.left + this.el.width() + this.step > this.game.el.width() || (this.direction < 0 && this.position.left - this.step == 0)) this.direction *= -1;
+		if(this.position.left + this.el.width() + this.step > this.game.el.width() || (this.direction < 0 && this.position.left - this.step == 0)) {
+			this.direction *= -1;
+		}
+		this.transform.transform = 'scale('+this.direction+', 1)';
 
 		this.position.left += this.step*this.direction;
+		this.position.top += -1 + Math.random() * 2;
+		//min + Math.random() * (max - min)
 		
 		this.el.css(this.position);
+		this.el.css(this.transform);
 
 	}, this.game.speed);
 
 	return this.el;
 }
-Fish.prototype.randomCords = function(){
-	// console.log('this.game.el.height()', this.game.el.height());
-	// console.log('this.el.height()', this.el.height());
 
+Fish.prototype.randomCords = function(){
 	var y = parseInt((this.game.el.height() - this.el.height()) * Math.random());
 	this.position.top = y;
 }
+
 Fish.prototype.removeFish = function(){
 	this.el.remove();
+	this.game.addFish();
 	this.game.fishes.count--;
 	clearInterval(this.timeout);
 }
+
 Fish.prototype.dieFish = function(){
 	setTimeout(()=>{
 		this.removeFish();
@@ -118,10 +121,24 @@ Fish.prototype.dieFish = function(){
 
 var app = new Game($("#app"));
 app.addFish(parseInt(Math.random()*4));
+
 var addTimer = setInterval(function(){
 	if(app.fishes.count <=10){
 		app.addFish(parseInt(Math.random()*4));
 	}
 }, 4000);
+
+app.timer = setInterval(()=>{
+	if(app.time > 0){
+		app.renderTimer();
+	}else{
+		$(".fish").remove();
+		$("#app").append($("#finish"));
+		$("#finish").css("display","flex");
+		$("#finish .container").append($("<h2>").text("Game over! Your score " + app.score));
+		clearInterval(app.timer);
+		clearInterval(addTimer);
+	}
+}, 1000);
 
 
